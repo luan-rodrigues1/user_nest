@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private repo: Repository<User>,
+        private usersRepo: Repository<User>,
     ) {}
 
     create(createUserDto: CreateUserDto) {
