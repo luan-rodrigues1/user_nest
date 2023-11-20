@@ -8,6 +8,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService {
@@ -24,19 +25,30 @@ export class UsersService {
         if (emailExists) {
             throw new ConflictException("Email already used");
         }
+
+        createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
+
         const createUser = this.usersRepo.create(createUserDto);
         await this.usersRepo.save(createUser);
-        return createUser;
+
+        const searchUser = await this.usersRepo.findOne({
+            where: { id: createUser.id },
+            select: ["id", "name", "email", "created_at", "updated_at"],
+        });
+        return searchUser;
     }
 
     async findAll(): Promise<User[]> {
-        const listUsers = await this.usersRepo.find();
+        const listUsers = await this.usersRepo.find({
+            select: ["id", "name", "email", "created_at", "updated_at"],
+        });
         return listUsers;
     }
 
     async findOne(id: FindUuidParams) {
         const searchUser = await this.usersRepo.findOne({
             where: { id: id.id },
+            select: ["id", "name", "email", "created_at", "updated_at"],
         });
 
         if (!searchUser) {
@@ -67,9 +79,17 @@ export class UsersService {
             }
         }
 
+        if (updateUserDto.password) {
+            updateUserDto.password = await bcrypt.hash(
+                updateUserDto.password,
+                10,
+            );
+        }
+
         await this.usersRepo.update(id.id, updateUserDto);
         const searchUserUpdate = await this.usersRepo.findOne({
             where: { id: id.id },
+            select: ["id", "name", "email", "created_at", "updated_at"],
         });
 
         return searchUserUpdate;
