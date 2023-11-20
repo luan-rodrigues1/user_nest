@@ -1,5 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
+import { CreateUserDto, FindUuidParams } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
@@ -12,25 +16,74 @@ export class UsersService {
         private usersRepo: Repository<User>,
     ) {}
 
-    create(createUserDto: CreateUserDto) {
-        console.log("teste", createUserDto);
-        return "This action adds a new user luanzin";
+    async create(createUserDto: CreateUserDto): Promise<User> {
+        const emailExists = await this.usersRepo.findOne({
+            where: { email: createUserDto.email },
+        });
+
+        if (emailExists) {
+            throw new ConflictException("Email already used");
+        }
+        const createUser = this.usersRepo.create(createUserDto);
+        await this.usersRepo.save(createUser);
+        return createUser;
     }
 
-    findAll() {
-        return `This action returns all users`;
+    async findAll(): Promise<User[]> {
+        const listUsers = await this.usersRepo.find();
+        return listUsers;
     }
 
-    findOne(id: string) {
-        return `This action returns a #${id} user`;
+    async findOne(id: FindUuidParams) {
+        const searchUser = await this.usersRepo.findOne({
+            where: { id: id.id },
+        });
+
+        if (!searchUser) {
+            throw new NotFoundException("User not found");
+        }
+        return searchUser;
     }
 
-    update(id: string, updateUserDto: UpdateUserDto) {
-        console.log("teste", updateUserDto);
-        return `This action updates a #${id} user`;
+    async update(
+        id: FindUuidParams,
+        updateUserDto: UpdateUserDto,
+    ): Promise<User> {
+        const userIdExists = await this.usersRepo.findOne({
+            where: { id: id.id },
+        });
+
+        if (!userIdExists) {
+            throw new NotFoundException("User not found");
+        }
+
+        if (updateUserDto.email) {
+            const emailExists = await this.usersRepo.findOne({
+                where: { email: updateUserDto.email },
+            });
+
+            if (emailExists && emailExists.email !== userIdExists.email) {
+                throw new ConflictException("Email already used");
+            }
+        }
+
+        await this.usersRepo.update(id.id, updateUserDto);
+        const searchUserUpdate = await this.usersRepo.findOne({
+            where: { id: id.id },
+        });
+
+        return searchUserUpdate;
     }
 
-    remove(id: string) {
-        return `This action removes a #${id} user`;
+    async remove(id: FindUuidParams): Promise<void> {
+        const searchUser = await this.usersRepo.findOne({
+            where: { id: id.id },
+        });
+
+        if (!searchUser) {
+            throw new NotFoundException("User not found");
+        }
+
+        await this.usersRepo.remove(searchUser);
     }
 }
