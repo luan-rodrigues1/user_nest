@@ -15,5 +15,4 @@ export const dataSourceOpts :DataSourceOptions = {
     synchronize: false,
 }
 
-
 export const connectionSource = new DataSource(dataSourceOpts);
