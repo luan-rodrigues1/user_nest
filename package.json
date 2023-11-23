@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:create": "node -e \"const readline = require('readline'); const rl = readline.createInterface({ input: process.stdin, output: process.stdout }); rl.question('Enter migration directory name: ', (migrationDir) => { require('child_process').execSync(`typeorm-ts-node-commonjs migration:create ./migrations/${migrationDir}`); rl.close(); })\"",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d ./data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

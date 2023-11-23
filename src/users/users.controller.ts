@@ -7,9 +7,14 @@ import {
     Delete,
     Put,
     HttpCode,
+    ParseUUIDPipe,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { CreateUserDto, FindUuidParams } from "./dto/create-user.dto";
+import {
+    CreateUserDto,
+    FindUuidParams,
+    ResponseUserDto,
+} from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 
@@ -27,12 +32,14 @@ export class UsersController {
         return await this.usersService.findAll();
     }
 
-    @Get(":id")
-    async findOne(@Param() id: FindUuidParams): Promise<User> {
-        return await this.usersService.findOne(id);
+    @Get("/:id")
+    async findOne(
+        @Param("id", ParseUUIDPipe) id: string,
+    ): Promise<ResponseUserDto> {
+        return ResponseUserDto.fromModel(await this.usersService.findOne(id));
     }
 
-    @Put(":id")
+    @Put("/:id")
     async update(
         @Param() id: FindUuidParams,
         @Body() updateUserDto: UpdateUserDto,
@@ -41,7 +48,7 @@ export class UsersController {
         return await this.usersService.update(id, updateUserDto);
     }
 
-    @Delete(":id")
+    @Delete("/:id")
     @HttpCode(204)
     async remove(@Param() id: FindUuidParams): Promise<void> {
         return await this.usersService.remove(id);
