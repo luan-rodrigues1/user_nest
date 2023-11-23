@@ -12,7 +12,6 @@ import {
 import { UsersService } from "./users.service";
 import {
     CreateUserDto,
-    FindUuidParams,
     ResponseUserDto,
 } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -41,7 +40,7 @@ export class UsersController {
 
     @Put("/:id")
     async update(
-        @Param() id: FindUuidParams,
+        @Param("id", ParseUUIDPipe) id: string,
         @Body() updateUserDto: UpdateUserDto,
     ): Promise<User> {
         console.log(id);
@@ -50,7 +49,7 @@ export class UsersController {
 
     @Delete("/:id")
     @HttpCode(204)
-    async remove(@Param() id: FindUuidParams): Promise<void> {
+    async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
         return await this.usersService.remove(id);
     }
 }

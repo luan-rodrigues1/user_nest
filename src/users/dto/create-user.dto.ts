@@ -20,7 +20,3 @@ export class ResponseUserDto extends OmitType(CreateUserDto, ["password"]) {
         return plainToInstance(ResponseUserDto, user);
     }
 }
-export class FindUuidParams {
-    @IsUUID()
-    id: string;
-}

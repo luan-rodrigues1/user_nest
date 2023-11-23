@@ -3,7 +3,7 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { CreateUserDto, FindUuidParams } from "./dto/create-user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
@@ -57,11 +57,11 @@ export class UsersService {
     }
 
     async update(
-        id: FindUuidParams,
+        id: string,
         updateUserDto: UpdateUserDto,
     ): Promise<User> {
         const userIdExists = await this.usersRepo.findOne({
-            where: { id: id.id },
+            where: { id: id },
         });
 
         if (!userIdExists) {
@@ -85,18 +85,18 @@ export class UsersService {
             );
         }
 
-        await this.usersRepo.update(id.id, updateUserDto);
+        await this.usersRepo.update(id, updateUserDto);
         const searchUserUpdate = await this.usersRepo.findOne({
-            where: { id: id.id },
+            where: { id: id },
             select: ["id", "name", "email", "created_at", "updated_at"],
         });
 
         return searchUserUpdate;
     }
 
-    async remove(id: FindUuidParams): Promise<void> {
+    async remove(id: string): Promise<void> {
         const searchUser = await this.usersRepo.findOne({
-            where: { id: id.id },
+            where: { id: id },
         });
 
         if (!searchUser) {
