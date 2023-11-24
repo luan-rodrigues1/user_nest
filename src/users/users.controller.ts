@@ -20,8 +20,10 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { AuthGuard } from "src/auth/auth.guard";
 import { TokenUserRequest } from "src/auth/dto/login.dto";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller("users")
+@ApiTags("User")
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
