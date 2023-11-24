@@ -4,7 +4,7 @@ import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private jwtService: JwtService) {}
+    constructor(private readonly jwtService: JwtService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -20,6 +20,7 @@ export class AuthGuard implements CanActivate {
             }
           );
           request['user'] = payload;
+          console.log(request.user, "teste auth")
         } catch {
           throw new UnauthorizedException("Invalid Token");
         }

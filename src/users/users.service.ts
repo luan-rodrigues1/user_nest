@@ -2,6 +2,7 @@ import {
     ConflictException,
     Injectable,
     NotFoundException,
+    ForbiddenException
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -38,14 +39,22 @@ export class UsersService {
         return searchUser;
     }
 
-    async findAll(): Promise<User[]> {
+    async findAll(tokenUserIsAdm: boolean): Promise<User[]> {
+
+        if (!tokenUserIsAdm) {
+            throw new ForbiddenException("admin users only")
+        }
         const listUsers = await this.usersRepo.find({
             select: ["id", "name", "email", "is_adm", "created_at", "updated_at"],
         });
         return listUsers;
     }
 
-    async findOne(id: string): Promise<User> {
+    async findOne(
+        id: string,
+        tokenUserId: string,
+        tokenUserIsAdm: boolean
+    ): Promise<User> {
         const searchUser = await this.usersRepo.findOne({
             where: { id: id },
         });
@@ -53,12 +62,19 @@ export class UsersService {
         if (!searchUser) {
             throw new NotFoundException("User not found");
         }
+
+        if (!tokenUserIsAdm && searchUser.id !== tokenUserId) {
+            throw new ForbiddenException("Only the user or an administrator can update")
+        }
+
         return searchUser;
     }
 
     async update(
         id: string,
         updateUserDto: UpdateUserDto,
+        tokenUserId: string,
+        tokenUserIsAdm: boolean
     ): Promise<User> {
         const userIdExists = await this.usersRepo.findOne({
             where: { id: id },
@@ -66,6 +82,10 @@ export class UsersService {
 
         if (!userIdExists) {
             throw new NotFoundException("User not found");
+        }
+
+        if (!tokenUserIsAdm && userIdExists.id !== tokenUserId) {
+            throw new ForbiddenException("Only the user or an administrator can update")
         }
 
         if (updateUserDto.email) {
@@ -94,10 +114,18 @@ export class UsersService {
         return searchUserUpdate;
     }
 
-    async remove(id: string): Promise<void> {
+    async remove(
+        id: string,
+        tokenUserId: string,
+        tokenUserIsAdm: boolean
+    ): Promise<void> {
         const searchUser = await this.usersRepo.findOne({
             where: { id: id },
         });
+
+        if (!tokenUserIsAdm && searchUser.id !== tokenUserId) {
+            throw new ForbiddenException("Only the user or an administrator can update")
+        }
 
         if (!searchUser) {
             throw new NotFoundException("User not found");

@@ -8,7 +8,8 @@ import {
     Put,
     HttpCode,
     ParseUUIDPipe,
-    UseGuards
+    UseGuards,
+    Request,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import {
@@ -18,6 +19,7 @@ import {
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { AuthGuard } from "src/auth/auth.guard";
+import { TokenUserRequest } from "src/auth/dto/login.dto";
 
 @Controller("users")
 export class UsersController {
@@ -30,16 +32,23 @@ export class UsersController {
 
     @Get()
     @UseGuards(AuthGuard)
-    async findAll(): Promise<User[]> {
-        return await this.usersService.findAll();
+    async findAll(
+        @Request() requestData: TokenUserRequest
+    ): Promise<User[]> {
+        return await this.usersService.findAll(requestData.user.is_adm);
     }
 
     @Get("/:id")
     @UseGuards(AuthGuard)
     async findOne(
         @Param("id", ParseUUIDPipe) id: string,
+        @Request() requestData: TokenUserRequest
     ): Promise<ResponseUserDto> {
-        return ResponseUserDto.fromModel(await this.usersService.findOne(id));
+        return ResponseUserDto.fromModel(await this.usersService.findOne(
+            id,
+            requestData.user.sub, 
+            requestData.user.is_adm
+        ));
     }
 
     @Put("/:id")
@@ -47,15 +56,27 @@ export class UsersController {
     async update(
         @Param("id", ParseUUIDPipe) id: string,
         @Body() updateUserDto: UpdateUserDto,
+        @Request() requestData: TokenUserRequest, 
     ): Promise<User> {
-        console.log(id);
-        return await this.usersService.update(id, updateUserDto);
+        return await this.usersService.update(
+            id, 
+            updateUserDto, 
+            requestData.user.sub, 
+            requestData.user.is_adm
+        );
     }
 
     @Delete("/:id")
     @UseGuards(AuthGuard)
     @HttpCode(204)
-    async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
-        return await this.usersService.remove(id);
+    async remove(
+        @Param("id", ParseUUIDPipe) id: string, 
+        @Request() requestData: TokenUserRequest
+    ): Promise<void> {
+        return await this.usersService.remove(
+            id,
+            requestData.user.sub, 
+            requestData.user.is_adm
+        );
     }
 }
