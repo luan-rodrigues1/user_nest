@@ -1,9 +1,14 @@
-import { IsEmail, IsNotEmpty } from "class-validator";
+import { IsEmail, IsJWT, IsNotEmpty } from "class-validator";
 
 export class loginDto {
     @IsEmail()
-    name: string;
+    email: string;
 
     @IsNotEmpty()
     password: string
+}
+
+export class tokenResponse {
+    @IsJWT()
+    access_token: string
 }

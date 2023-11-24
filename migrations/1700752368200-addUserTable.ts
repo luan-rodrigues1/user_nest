@@ -22,6 +22,11 @@ export class AddUserTable1700752368200 implements MigrationInterface {
                     isUnique: true,
                 },
                 {
+                    name: "is_adm",
+                    type: "boolean",
+                    default: false
+                },
+                {
                     name: "password",
                     type: "varchar",
                 },

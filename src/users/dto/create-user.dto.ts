@@ -1,7 +1,7 @@
 import { User } from "./../entities/user.entity";
 import { OmitType } from "@nestjs/mapped-types";
 import { Exclude, plainToInstance } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsUUID } from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 export class CreateUserDto {
     @IsNotEmpty()
     name: string;
@@ -11,6 +11,10 @@ export class CreateUserDto {
 
     @IsNotEmpty()
     password: string;
+
+    @IsOptional()
+    @IsBoolean()
+    is_adm: boolean
 }
 export class ResponseUserDto extends OmitType(CreateUserDto, ["password"]) {
     @IsNotEmpty()

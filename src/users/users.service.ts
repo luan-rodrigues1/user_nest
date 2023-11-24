@@ -33,14 +33,14 @@ export class UsersService {
 
         const searchUser = await this.usersRepo.findOne({
             where: { id: createUser.id },
-            select: ["id", "name", "email", "created_at", "updated_at"],
+            select: ["id", "name", "email", "is_adm", "created_at", "updated_at"],
         });
         return searchUser;
     }
 
     async findAll(): Promise<User[]> {
         const listUsers = await this.usersRepo.find({
-            select: ["id", "name", "email", "created_at", "updated_at"],
+            select: ["id", "name", "email", "is_adm", "created_at", "updated_at"],
         });
         return listUsers;
     }
@@ -88,7 +88,7 @@ export class UsersService {
         await this.usersRepo.update(id, updateUserDto);
         const searchUserUpdate = await this.usersRepo.findOne({
             where: { id: id },
-            select: ["id", "name", "email", "created_at", "updated_at"],
+            select: ["id", "name", "email", "is_adm", "created_at", "updated_at"],
         });
 
         return searchUserUpdate;
