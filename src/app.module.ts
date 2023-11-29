@@ -6,6 +6,7 @@ import { UsersModule } from "./users/users.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from './auth/auth.modulo';
+import { GatewayModule } from './gateway/gateway.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -16,7 +17,8 @@ import { AuthModule } from './auth/auth.modulo';
             autoLoadEntities: true,
         }),
         UsersModule,
-        AuthModule
+        AuthModule,
+        GatewayModule
     ],
     controllers: [AppController],
     providers: [AppService],
